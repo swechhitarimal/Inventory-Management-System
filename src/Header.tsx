@@ -11,7 +11,7 @@ function Header() {
 
                     <div className="flex flex-col">
                         <h1 className="text-2xl font-bold text-gray-800">Inventory Pro</h1>
-                        <p className="text-gray-600">Manage your stock</p>
+                        <p className="text-gray-600">Manage your store products</p>
                     </div>
                 </div>
 
