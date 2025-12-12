@@ -73,7 +73,7 @@ function AddProductModal({ isOpen, onClose, onSubmit }: AddProductModalProps) {
             onCancel={handleCancel}              
             okText="Add Product"                
             cancelText="Cancel"                  
-            width={600}                          
+            width={600}                                
         >
             <div className="space-y-4 py-4">
               

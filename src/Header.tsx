@@ -1,7 +1,6 @@
+import { useState } from 'react';
 import { Package } from 'lucide-react';
-import {useState} from 'react';
 import AddProductModal from './AddProductModal';
-
 
 interface ProductFormData {
     productName: string;
@@ -13,19 +12,19 @@ interface ProductFormData {
 }
 
 function Header() {
-
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const handleAddProduct = (data: ProductFormData) => {
-        console.log('Product added:',data);
-    }
+        console.log('Product added:', data);
+        // Here you would typically send the data to your backend
+    };
 
     return (
         <>
           <header className="bg-white shadow-md">
             <div className="max-w-7xl mx-auto px-6 py-4">
-                <div className="flex items-center justify-between">                    
-                   
+                <div className="flex items-center justify-between">
+                    
                     <div className="flex items-center gap-4">
                         <div className="bg-blue-800 p-2 rounded-lg">
                             <Package className="h-8 w-8 text-white" />
@@ -36,10 +35,11 @@ function Header() {
                             <p className="text-sm text-gray-600">Manage your store products</p>
                         </div>
                     </div>
-                  
-                    <button
-                    onClick = {() => setIsModalOpen(true)} 
-                    className="bg-blue-800 text-white px-6 py-2.5 rounded-lg hover:bg-blue-700 transition-colors font-medium hover:cursor-pointer">
+
+                    <button 
+                        onClick={() => setIsModalOpen(true)}
+                        className="bg-blue-800 text-white px-6 py-2.5 rounded-lg hover:bg-blue-700 transition-colors font-medium hover:cursor-pointer"
+                    >
                         + Add Product
                     </button>
 
@@ -49,11 +49,11 @@ function Header() {
 
           <div className="h-px w-full bg-gray-200"></div>
 
-          <AddProductModal 
-            isOpen = {isModalOpen}
-            onClose = {() => setIsModalOpen(false)}
+          <AddProductModal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
             onSubmit={handleAddProduct}
-            /> 
+          />
         </>
     );
 }
