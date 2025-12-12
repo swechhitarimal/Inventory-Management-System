@@ -1,13 +1,14 @@
-import {Table} from "antd";
+import { Table } from "antd";
 
 function ProductsTable() 
 {
     return(
-        <>
-        <div className="mx-4 my-4">
-        <Table pagination={{pageSize : 5}}></Table>
+        <div className="max-w-7xl mx-auto px-6 py-4">
+            <Table 
+                pagination={{ pageSize: 5 }}
+                className="bg-white rounded-lg shadow-md"
+            />
         </div>
-        </>
     )
 }
 
