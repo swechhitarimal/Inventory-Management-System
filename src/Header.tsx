@@ -1,6 +1,25 @@
 import { Package } from 'lucide-react';
+import {useState} from 'react';
+import AddProductModal from './AddProductModal';
+
+
+interface ProductFormData {
+    productName: string;
+    category: string;
+    price: number | string;
+    quantity: number | string;
+    sku: string;
+    description: string;
+}
 
 function Header() {
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const handleAddProduct = (data: ProductFormData) => {
+        console.log('Product added:',data);
+    }
+
     return (
         <>
           <header className="bg-white shadow-md">
@@ -18,7 +37,9 @@ function Header() {
                         </div>
                     </div>
                   
-                    <button className="bg-blue-800 text-white px-6 py-2.5 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                    <button
+                    onClick = {() => setIsModalOpen(true)} 
+                    className="bg-blue-800 text-white px-6 py-2.5 rounded-lg hover:bg-blue-700 transition-colors font-medium hover:cursor-pointer">
                         + Add Product
                     </button>
 
@@ -26,7 +47,13 @@ function Header() {
             </div>
           </header> 
 
-          <div className="h-px w-full bg-gray-200"></div> 
+          <div className="h-px w-full bg-gray-200"></div>
+
+          <AddProductModal 
+            isOpen = {isModalOpen}
+            onClose = {() => setIsModalOpen(false)}
+            onSubmit={handleAddProduct}
+            /> 
         </>
     );
 }
