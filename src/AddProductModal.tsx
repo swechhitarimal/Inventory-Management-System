@@ -1,8 +1,7 @@
-import { useState } from 'react';
-import { Modal, Input, InputNumber, Select } from 'antd';
+import { useState, useEffect } from 'react';
+import { Modal, Input, InputNumber, Select, message } from 'antd';
 
 const { TextArea } = Input;
-
 
 interface ProductFormData {
     productName: string;   
@@ -17,10 +16,10 @@ interface AddProductModalProps {
     isOpen: boolean;                         
     onClose: () => void;                       
     onSubmit: (data: ProductFormData) => void; 
+    loading?: boolean;
 }
 
-
-function AddProductModal({ isOpen, onClose, onSubmit }: AddProductModalProps) {
+function AddProductModal({ isOpen, onClose, onSubmit, loading = false }: AddProductModalProps) {
     
     const [formData, setFormData] = useState<ProductFormData>({
         productName: '',
@@ -31,12 +30,45 @@ function AddProductModal({ isOpen, onClose, onSubmit }: AddProductModalProps) {
         description: ''
     });
     
+    const [categories, setCategories] = useState<string[]>([]);
+    const [loadingCategories, setLoadingCategories] = useState(false);
 
-    const handleOk = () => {       
+    // Fetch categories when modal opens
+    useEffect(() => {
+        if (isOpen) {
+            fetchCategories();
+        }
+    }, [isOpen]);
+
+    const fetchCategories = async () => {
+        try {
+            setLoadingCategories(true);
+            const response = await fetch('http://localhost:5000/categories');
+            
+            if (!response.ok) {
+                throw new Error('Failed to fetch categories');
+            }
+            
+            const data = await response.json();
+            setCategories(data);
+        } catch (error) {
+            console.error('Error fetching categories:', error);
+            message.error('Failed to load categories');
+        } finally {
+            setLoadingCategories(false);
+        }
+    };
+
+    const handleOk = () => {
+        // Validate required fields
+        if (!formData.productName || !formData.category || !formData.price || !formData.quantity || !formData.sku) {
+            message.warning('Please fill in all required fields');
+            return;
+        }
+        
         console.log('Form Data:', formData);  
         onSubmit(formData);                   
         resetForm();                          
-        onClose();                            
     };
 
     const handleCancel = () => {       
@@ -45,7 +77,6 @@ function AddProductModal({ isOpen, onClose, onSubmit }: AddProductModalProps) {
     };
 
     const resetForm = () => {
-      
         setFormData({
             productName: '',
             category: '',
@@ -57,12 +88,10 @@ function AddProductModal({ isOpen, onClose, onSubmit }: AddProductModalProps) {
     };
 
     const handleChange = (field: keyof ProductFormData, value: any) => {
-       
         setFormData(prev => ({
             ...prev, 
             [field]: value 
         }));
-        
     };
 
     return (
@@ -71,9 +100,11 @@ function AddProductModal({ isOpen, onClose, onSubmit }: AddProductModalProps) {
             open={isOpen}                        
             onOk={handleOk}                      
             onCancel={handleCancel}              
-            okText="Add Product"                
+            okText={loading ? "Adding..." : "Add Product"}
             cancelText="Cancel"                  
-            width={600}                                
+            width={600}
+            confirmLoading={loading}
+            cancelButtonProps={{ disabled: loading }}
         >
             <div className="space-y-4 py-4">
               
@@ -85,7 +116,7 @@ function AddProductModal({ isOpen, onClose, onSubmit }: AddProductModalProps) {
                   placeholder="Enter product name"          
                   value={formData.productName}              
                   onChange={(e) => handleChange('productName', e.target.value)}
-                 
+                  disabled={loading}
                 />
               </div>
               
@@ -98,13 +129,15 @@ function AddProductModal({ isOpen, onClose, onSubmit }: AddProductModalProps) {
                   style={{ width: '100%' }}                  
                   value={formData.category || undefined}  
                   onChange={(value) => handleChange('category', value)}
+                  loading={loadingCategories}
+                  disabled={loading}
+                  showSearch
                 >
-                  <Select.Option value="electronics">Electronics</Select.Option>
-                  <Select.Option value="clothing">Clothing</Select.Option>
-                  <Select.Option value="food">Food</Select.Option>
-                  <Select.Option value="furniture">Furniture</Select.Option>
-                  <Select.Option value="books">Books</Select.Option>
-                  
+                  {categories.map((category) => (
+                    <Select.Option key={category} value={category}>
+                      {category}
+                    </Select.Option>
+                  ))}
                 </Select>
               </div>
 
@@ -122,6 +155,7 @@ function AddProductModal({ isOpen, onClose, onSubmit }: AddProductModalProps) {
                     style={{ width: '100%' }}
                     value={formData.price}
                     onChange={(value) => handleChange('price', value)}
+                    disabled={loading}
                   />
                 </div>
 
@@ -135,18 +169,20 @@ function AddProductModal({ isOpen, onClose, onSubmit }: AddProductModalProps) {
                     style={{ width: '100%' }}
                     value={formData.quantity}
                     onChange={(value) => handleChange('quantity', value)}
+                    disabled={loading}
                   />
                 </div>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  SKU (Stock Keeping Unit)
+                  SKU (Stock Keeping Unit) <span className="text-red-500">*</span>
                 </label>
                 <Input 
                   placeholder="e.g., PROD-001"
                   value={formData.sku}
                   onChange={(e) => handleChange('sku', e.target.value)}
+                  disabled={loading}
                 />
               </div>
 
@@ -159,6 +195,7 @@ function AddProductModal({ isOpen, onClose, onSubmit }: AddProductModalProps) {
                   placeholder="Enter product description"
                   value={formData.description}
                   onChange={(e) => handleChange('description', e.target.value)}
+                  disabled={loading}
                 />
               </div>
 

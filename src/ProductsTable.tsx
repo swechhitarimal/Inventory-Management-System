@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
-import { Table, Button, Space, Modal, message, Popconfirm } from "antd";
+import { Table, Button, Space, message, Popconfirm } from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
-import AddProductModal from "./AddProductModal";
 
 interface Product {
     id: number;
@@ -18,12 +17,28 @@ function ProductsTable() {
 
     useEffect(() => {
         fetchProducts();
+        
+        // Listen for product added event
+        const handleProductAdded = () => {
+            fetchProducts();
+        };
+        
+        window.addEventListener('productAdded', handleProductAdded);
+        
+        return () => {
+            window.removeEventListener('productAdded', handleProductAdded);
+        };
     }, []);
 
     const fetchProducts = async () => {
         try {
             setLoading(true);
             const response = await fetch('http://localhost:5000/products');
+            
+            if (!response.ok) {
+                throw new Error('Failed to fetch products');
+            }
+            
             const products = await response.json();
             setData(products);
         } catch (error) {
@@ -53,7 +68,8 @@ function ProductsTable() {
     };
 
     const handleEdit = (record: Product) => {
-       
+        console.log('Edit', record);
+        message.info('Edit functionality - to be implemented');
     };
 
     const columns = [
@@ -71,7 +87,7 @@ function ProductsTable() {
             title: 'Price',
             dataIndex: 'price',
             key: 'price',           
-            render: (price: number) => `$${price.toFixed(2)}`,
+            render: (price: number) => `$${parseFloat(price.toString()).toFixed(2)}`,
         },
         {
             title: 'Category',
