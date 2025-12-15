@@ -14,7 +14,6 @@ function ProductSummaryChart()
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null> (null);
 
-    // Generate glassmorphism-style colors
     const generateGlassColors = (count: number): { bg: string[], border: string[] } => {
         const glassColors = [
             { bg: 'rgba(99, 102, 241, 0.2)', border: 'rgba(99, 102, 241, 0.8)' },      // Indigo
@@ -31,7 +30,6 @@ function ProductSummaryChart()
             { bg: 'rgba(217, 70, 239, 0.2)', border: 'rgba(217, 70, 239, 0.8)' },      // Fuchsia
         ];
 
-        // If more categories than predefined, generate using HSL
         if (count > glassColors.length) {
             for (let i = glassColors.length; i < count; i++) {
                 const hue = (i * 360) / count;
@@ -64,7 +62,6 @@ function ProductSummaryChart()
                 const categories = data.map(item => item.category);
                 const quantities = data.map(item => item.quantity);
 
-                // Generate glass effect colors
                 const colors = generateGlassColors(categories.length);
 
                 if(chartInstance.current)

@@ -15,8 +15,7 @@ function Header() {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const handleAddProduct = (data: ProductFormData) => {
-        console.log('Product added:', data);
-        // Here you would typically send the data to your backend
+        
     };
 
     return (

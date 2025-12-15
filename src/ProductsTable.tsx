@@ -1,9 +1,19 @@
 import { useState, useEffect } from "react";
-import { Table, Button, Space } from "antd";
+import { Table, Button, Space, Modal, message, Popconfirm } from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import AddProductModal from "./AddProductModal";
+
+interface Product {
+    id: number;
+    product_code: string;
+    name: string;
+    price: number;
+    category: string;
+    quantity: number;
+}
 
 function ProductsTable() {
-    const [data, setData] = useState([]);
+    const [data, setData] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -18,9 +28,32 @@ function ProductsTable() {
             setData(products);
         } catch (error) {
             console.error('Error fetching products:', error);
+            message.error('Failed to fetch products');
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleDelete = async (record: Product) => {
+        try {
+            const response = await fetch(`http://localhost:5000/products/${record.id}`, {
+                method: 'DELETE',
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to delete product');
+            }
+
+            message.success('Product deleted successfully');
+            fetchProducts();
+        } catch (error) {
+            console.error('Error deleting product:', error);
+            message.error('Failed to delete product');
+        }
+    };
+
+    const handleEdit = (record: Product) => {
+       
     };
 
     const columns = [
@@ -38,7 +71,7 @@ function ProductsTable() {
             title: 'Price',
             dataIndex: 'price',
             key: 'price',           
-            render: (price: number) => `$${price}`,
+            render: (price: number) => `$${price.toFixed(2)}`,
         },
         {
             title: 'Category',
@@ -51,27 +84,33 @@ function ProductsTable() {
             key: "quantity",            
         },
         {
-            title: "Action",
+            title: "Actions",
             key: "action",
-            width: 200,
-            render: (_: any, record: any) => (
-                <Space size="small">
+            width: 120,
+            align: 'center' as const,
+            render: (_: any, record: Product) => (
+                <Space size="middle">
                     <Button 
-                        type="primary" 
+                        type="text"
                         icon={<EditOutlined />}
-                        size="small"
-                        onClick={() => console.log('Edit', record)}
+                        onClick={() => handleEdit(record)}
+                        className="text-blue-600 hover:text-blue-800 hover:bg-blue-50"
+                    />
+                    <Popconfirm
+                        title="Delete Product"
+                        description="Are you sure you want to delete this product?"
+                        onConfirm={() => handleDelete(record)}
+                        okText="Yes"
+                        cancelText="No"
+                        okButtonProps={{ danger: true }}
                     >
-                        Edit
-                    </Button>
-                    <Button 
-                        danger 
-                        icon={<DeleteOutlined />}
-                        size="small"
-                        onClick={() => console.log('Delete', record)}
-                    >
-                        Delete
-                    </Button>
+                        <Button 
+                            type="text"
+                            icon={<DeleteOutlined />}
+                            danger
+                            className="hover:bg-red-50"
+                        />
+                    </Popconfirm>
                 </Space>
             ),
         }
@@ -85,7 +124,6 @@ function ProductsTable() {
                 rowKey="id"
                 loading={loading}
                 pagination={{ pageSize: 10 }}
-                tableLayout="fixed"
                 className="bg-white rounded-lg shadow-md"
             />
         </div>
