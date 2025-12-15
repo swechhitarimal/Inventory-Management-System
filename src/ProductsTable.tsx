@@ -216,7 +216,7 @@ function ProductsTable({ searchTerm, categoryFilter }: ProductsTableProps) {
                 dataSource={filteredData}
                 rowKey="id"
                 loading={loading}
-                pagination={{ pageSize: 10 }}
+                 pagination={{ pageSize: 10, size: "small" }}
                 className="bg-white rounded-lg shadow-md"
             />
 
