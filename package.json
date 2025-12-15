@@ -13,6 +13,7 @@
     "@ant-design/plots": "^2.6.6",
     "@tailwindcss/vite": "^4.1.17",
     "antd": "^6.1.0",
+    "chart.js": "^4.5.1",
     "lucide-react": "^0.556.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
