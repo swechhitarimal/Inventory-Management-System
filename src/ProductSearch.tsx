@@ -1,7 +1,12 @@
 import { Select, Input} from 'antd';
 import { useEffect, useState } from 'react';
 
-function ProductSearch() 
+interface ProductSearchProps {
+    onSearch: (searchTerm: string) => void;
+    onCategoryFilter: (category: string | null) => void;
+}
+
+function ProductSearch({ onSearch, onCategoryFilter }: ProductSearchProps) 
 {
     const [categories, setCategories] = useState([]);
 
@@ -11,6 +16,14 @@ function ProductSearch()
             .then(data => setCategories(data))
             .catch(err => console.error(err));
     }, []);
+
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        onSearch(e.target.value);
+    };
+
+    const handleCategoryChange = (value: string) => {
+        onCategoryFilter(value || null);
+    };
 
     return(
         <div className="max-w-7xl mx-auto px-6 py-4">
@@ -23,11 +36,14 @@ function ProductSearch()
                         placeholder="Search products..." 
                         style={{width: 250}}
                         className="rounded-lg"
+                        onChange={handleSearchChange}
+                        allowClear
                     />
                     <Select
                         placeholder="All Categories"
                         style={{ width: 200 }}
                         allowClear
+                        onChange={handleCategoryChange}
                     >
                         {categories.map(cat => (
                             <Select.Option key={cat} value={cat}>

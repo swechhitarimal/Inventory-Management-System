@@ -12,14 +12,24 @@ interface ProductFormData {
     description: string;  
 }
 
+interface Product {
+    id: number;
+    product_code: string;
+    name: string;
+    price: number;
+    category: string;
+    quantity: number;
+}
+
 interface AddProductModalProps {
     isOpen: boolean;                         
     onClose: () => void;                       
     onSubmit: (data: ProductFormData) => void; 
     loading?: boolean;
+    editingProduct?: Product | null;
 }
 
-function AddProductModal({ isOpen, onClose, onSubmit, loading = false }: AddProductModalProps) {
+function AddProductModal({ isOpen, onClose, onSubmit, loading = false, editingProduct = null }: AddProductModalProps) {
     
     const [formData, setFormData] = useState<ProductFormData>({
         productName: '',
@@ -39,6 +49,22 @@ function AddProductModal({ isOpen, onClose, onSubmit, loading = false }: AddProd
             fetchCategories();
         }
     }, [isOpen]);
+
+    // Populate form with editing product data
+    useEffect(() => {
+        if (editingProduct) {
+            setFormData({
+                productName: editingProduct.name,
+                category: editingProduct.category,
+                price: editingProduct.price,
+                quantity: editingProduct.quantity,
+                sku: editingProduct.product_code,
+                description: ''
+            });
+        } else {
+            resetForm();
+        }
+    }, [editingProduct]);
 
     const fetchCategories = async () => {
         try {
@@ -68,7 +94,11 @@ function AddProductModal({ isOpen, onClose, onSubmit, loading = false }: AddProd
         
         console.log('Form Data:', formData);  
         onSubmit(formData);                   
-        resetForm();                          
+        
+        // Only reset if not editing (editing will be reset by parent)
+        if (!editingProduct) {
+            resetForm();
+        }
     };
 
     const handleCancel = () => {       
@@ -96,11 +126,11 @@ function AddProductModal({ isOpen, onClose, onSubmit, loading = false }: AddProd
 
     return (
         <Modal
-            title="Add New Product"              
+            title={editingProduct ? "Edit Product" : "Add New Product"}
             open={isOpen}                        
             onOk={handleOk}                      
             onCancel={handleCancel}              
-            okText={loading ? "Adding..." : "Add Product"}
+            okText={loading ? (editingProduct ? "Updating..." : "Adding...") : (editingProduct ? "Update Product" : "Add Product")}
             cancelText="Cancel"                  
             width={600}
             confirmLoading={loading}

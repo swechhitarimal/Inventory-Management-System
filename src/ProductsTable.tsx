@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Table, Button, Space, message, Popconfirm } from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import AddProductModal from "./AddProductModal";
 
 interface Product {
     id: number;
@@ -11,14 +12,21 @@ interface Product {
     quantity: number;
 }
 
-function ProductsTable() {
+interface ProductsTableProps {
+    searchTerm: string;
+    categoryFilter: string | null;
+}
+
+function ProductsTable({ searchTerm, categoryFilter }: ProductsTableProps) {
     const [data, setData] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+    const [submitting, setSubmitting] = useState(false);    
 
     useEffect(() => {
         fetchProducts();
         
-        // Listen for product added event
         const handleProductAdded = () => {
             fetchProducts();
         };
@@ -68,9 +76,78 @@ function ProductsTable() {
     };
 
     const handleEdit = (record: Product) => {
-        console.log('Edit', record);
-        message.info('Edit functionality - to be implemented');
+        setEditingProduct(record);
+        setIsModalOpen(true);
     };
+
+    const handleUpdateProduct = async (formData : any) => {
+        if(!editingProduct) return;
+
+        try 
+        {
+            setSubmitting(true);
+
+            const productData = 
+            {
+                product_code: formData.sku,
+                name: formData.productName,
+                price: parseFloat(formData.price.toString()),
+                category: formData.category,
+                quantity: parseInt(formData.quantity.toString())
+            };
+
+            const response = await fetch(`http://localhost:5000/products/${editingProduct.id}`,
+                {
+                    method: 'PUT',
+                    headers: 
+                    {
+                        'Content-Type' : 'application/json',
+                    },
+                    body: JSON.stringify(productData)
+                }
+            )
+
+            if(!response.ok)
+            {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to update product')
+            }
+
+            message.success('Product updated successfully!');
+            setIsModalOpen(false);
+            setEditingProduct(null);
+            fetchProducts();
+        }
+
+        catch (error : any)
+        {
+            console.error('Error updating product:', error);
+            message.error(error.message || 'Failed to update product')
+        }
+
+        finally 
+        {
+            setSubmitting(false);
+        }
+    }
+
+    const handleModalClose = () => 
+    {
+        setIsModalOpen(false);
+        setEditingProduct(null);
+    }
+
+    // Filter data based on search term and category
+    const filteredData = data.filter(product => {
+        const matchesSearch = searchTerm === '' || 
+            product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            product.product_code.toLowerCase().includes(searchTerm.toLowerCase());
+        
+        const matchesCategory = categoryFilter === null || 
+            product.category === categoryFilter;
+        
+        return matchesSearch && matchesCategory;
+    });
 
     const columns = [
         {
@@ -136,12 +213,19 @@ function ProductsTable() {
         <div className="max-w-7xl mx-auto px-6 py-4">
             <Table 
                 columns={columns}
-                dataSource={data}
+                dataSource={filteredData}
                 rowKey="id"
                 loading={loading}
                 pagination={{ pageSize: 10 }}
                 className="bg-white rounded-lg shadow-md"
             />
+
+            <AddProductModal
+            isOpen = {isModalOpen}
+            onClose={handleModalClose}
+            onSubmit={handleUpdateProduct}
+            loading = {submitting}
+            editingProduct = {editingProduct} />
         </div>
     );
 }
