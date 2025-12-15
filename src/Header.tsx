@@ -41,12 +41,10 @@ function Header() {
                 throw new Error(errorData.message || 'Failed to add product');
             }
 
-            const result = await response.json();
-            
+             
             message.success('Product added successfully!');
             setIsModalOpen(false);
             
-            // Dispatch event to refresh the table
             window.dispatchEvent(new Event('productAdded'));
             
         } catch (error: any) {
