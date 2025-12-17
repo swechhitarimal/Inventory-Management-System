@@ -27,7 +27,17 @@ function ProductSummary() {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        fetchProductSummary();
+        fetchProductSummary();        
+       
+        const handleProductsUpdated = () => {
+            fetchProductSummary();
+        };
+        
+        window.addEventListener('productsUpdated', handleProductsUpdated);
+        
+        return () => {
+            window.removeEventListener('productsUpdated', handleProductsUpdated);
+        };
     }, []);
 
     const fetchProductSummary = async (): Promise<void> => {

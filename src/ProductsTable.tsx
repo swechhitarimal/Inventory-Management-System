@@ -39,6 +39,9 @@ function ProductsTable({ searchTerm, categoryFilter }: ProductsTableProps) {
             
             const products = await response.json();
             setData(products);
+            
+            // Dispatch event to notify other components
+            window.dispatchEvent(new Event('productsUpdated'));
         } catch (error) {
             console.error('Error fetching products:', error);
             message.error('Failed to fetch products');
