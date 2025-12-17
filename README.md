@@ -1,73 +1,73 @@
-# React + TypeScript + Vite
-
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
 ```
+# Inventory Management System
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+An **Inventory Management System** built with **React + Vite** on the frontend and **Node.js** on the backend. The application allows users to **add, edit, delete, and view products** in a tabular format, visualize inventory data using charts, and persist data using a **PostgreSQL** database.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 🚀 Features
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+* **Product Management (CRUD)**
+
+  * Add new products
+  * Edit existing products
+  * Delete products
+  * View all products in a table
+
+* **Data Visualization**
+
+  * Interactive charts using **Chart.js**
+  * Visual representation of inventory data (e.g., stock by category)
+
+* **Modern UI**
+
+  * Clean and responsive design using **Ant Design (AntD)** components
+  * Tables, forms, modals, buttons, and pagination
+
+## 🛠️ Tech Stack
+
+### Frontend
+
+* **React.js**
+* **Vite**
+* **Ant Design (AntD)**
+* **Chart.js**
+* **TypeScript / JavaScript**
+
+### Backend
+
+* **Node.js** (used mainly to expose simple APIs for product CRUD)
+
+## 🗄️ Database
+
+* **PostgreSQL**
+
+## ⚙️ CRUD Operations
+
+| Operation | Description                       |
+| --------- | --------------------------------- |
+| Create    | Add new products to the inventory |
+| Read      | View products in an AntD table    |
+| Update    | Edit product details              |
+| Delete    | Remove products from inventory    |
+
+## 📊 Charts & Visualization
+
+* Uses **Chart.js** to display inventory insights
+* Charts update dynamically based on product data
+* Helps in understanding stock distribution and trends
+
+## 🔌 API Overview
+
+The backend provides simple REST APIs used by the frontend to perform CRUD operations on products.
+
+## 🗄️ Database
+
+* **PostgreSQL** is used for data persistence
+* Stores product information such as:
+
+  * Product name
+  * Category
+  * Quantity
+  * Price
+  * Created / updated timestamps
+
 ```
