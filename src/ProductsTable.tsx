@@ -26,16 +26,6 @@ function ProductsTable({ searchTerm, categoryFilter }: ProductsTableProps) {
 
     useEffect(() => {
         fetchProducts();
-        
-        const handleProductAdded = () => {
-            fetchProducts();
-        };
-        
-        window.addEventListener('productAdded', handleProductAdded);
-        
-        return () => {
-            window.removeEventListener('productAdded', handleProductAdded);
-        };
     }, []);
 
     const fetchProducts = async () => {
@@ -80,15 +70,11 @@ function ProductsTable({ searchTerm, categoryFilter }: ProductsTableProps) {
         setIsModalOpen(true);
     };
 
-    const handleUpdateProduct = async (formData : any) => {
-        if(!editingProduct) return;
-
-        try 
-        {
+    const handleAddProduct = async (formData: any) => {
+        try {
             setSubmitting(true);
 
-            const productData = 
-            {
+            const productData = {
                 product_code: formData.sku,
                 name: formData.productName,
                 price: parseFloat(formData.price.toString()),
@@ -96,46 +82,77 @@ function ProductsTable({ searchTerm, categoryFilter }: ProductsTableProps) {
                 quantity: parseInt(formData.quantity.toString())
             };
 
-            const response = await fetch(`http://localhost:5000/products/${editingProduct.id}`,
-                {
-                    method: 'PUT',
-                    headers: 
-                    {
-                        'Content-Type' : 'application/json',
-                    },
-                    body: JSON.stringify(productData)
-                }
-            )
+            const response = await fetch('http://localhost:5000/products', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(productData)
+            });
 
-            if(!response.ok)
-            {
+            if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to update product')
+                throw new Error(errorData.message || 'Failed to add product');
+            }
+
+            message.success('Product added successfully!');
+            setIsModalOpen(false);
+            fetchProducts(); // Refresh the table
+        } catch (error: any) {
+            console.error('Error adding product:', error);
+            message.error(error.message || 'Failed to add product');
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    const handleUpdateProduct = async (formData: any) => {
+        if (!editingProduct) {
+            // This is an ADD operation
+            await handleAddProduct(formData);
+            return;
+        }
+
+        try {
+            setSubmitting(true);
+
+            const productData = {
+                product_code: formData.sku,
+                name: formData.productName,
+                price: parseFloat(formData.price.toString()),
+                category: formData.category,
+                quantity: parseInt(formData.quantity.toString())
+            };
+
+            const response = await fetch(`http://localhost:5000/products/${editingProduct.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(productData)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to update product');
             }
 
             message.success('Product updated successfully!');
             setIsModalOpen(false);
             setEditingProduct(null);
-            fetchProducts();
-        }
-
-        catch (error : any)
-        {
+            fetchProducts(); // Refresh the table
+        } catch (error: any) {
             console.error('Error updating product:', error);
-            message.error(error.message || 'Failed to update product')
-        }
-
-        finally 
-        {
+            message.error(error.message || 'Failed to update product');
+        } finally {
             setSubmitting(false);
         }
-    }
+    };
 
-    const handleModalClose = () => 
-    {
+    const handleModalClose = () => {
         setIsModalOpen(false);
         setEditingProduct(null);
-    }
+    };
 
     // Filter data based on search term and category
     const filteredData = data.filter(product => {
@@ -216,16 +233,17 @@ function ProductsTable({ searchTerm, categoryFilter }: ProductsTableProps) {
                 dataSource={filteredData}
                 rowKey="id"
                 loading={loading}
-                 pagination={{ pageSize: 10, size: "small" }}
+                pagination={{ pageSize: 10, size: "small" }}
                 className="bg-white rounded-lg shadow-md"
             />
 
             <AddProductModal
-            isOpen = {isModalOpen}
-            onClose={handleModalClose}
-            onSubmit={handleUpdateProduct}
-            loading = {submitting}
-            editingProduct = {editingProduct} />
+                isOpen={isModalOpen}
+                onClose={handleModalClose}
+                onSubmit={handleUpdateProduct}
+                loading={submitting}
+                editingProduct={editingProduct}
+            />
         </div>
     );
 }
