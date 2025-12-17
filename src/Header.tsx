@@ -44,7 +44,6 @@ function Header() {
             message.success('Product added successfully!');
             setIsModalOpen(false);
             
-            // This will trigger ProductsTable to refresh
             window.dispatchEvent(new Event('productAdded'));
             
         } catch (error: any) {
