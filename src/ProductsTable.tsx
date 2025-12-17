@@ -34,7 +34,11 @@ function ProductsTable({ searchTerm, categoryFilter }: ProductsTableProps) {
             }
             
             const products = await response.json();
-            setData(products);
+            
+            const sortedProducts = products.sort((a: Product, b: Product) => 
+                a.name.localeCompare(b.name, undefined, { numeric: true })
+            );
+            setData(sortedProducts);
             window.dispatchEvent(new Event('productsUpdated'));
         } catch (error) {
             console.error('Error fetching products:', error);
