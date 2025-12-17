@@ -25,7 +25,7 @@ function Header() {
                 name: data.productName,
                 price: parseFloat(data.price.toString()),
                 category: data.category,
-                quantity: parseInt(data.quantity.toString())
+                quantity: parseInt(data.quantity.toString(), 10)
             };
 
             const response = await fetch('http://localhost:5000/products', {
@@ -41,10 +41,10 @@ function Header() {
                 throw new Error(errorData.message || 'Failed to add product');
             }
 
-             
             message.success('Product added successfully!');
             setIsModalOpen(false);
             
+            // This will trigger ProductsTable to refresh
             window.dispatchEvent(new Event('productAdded'));
             
         } catch (error: any) {
@@ -75,7 +75,7 @@ function Header() {
                     <button 
                         onClick={() => setIsModalOpen(true)}
                         disabled={loading}
-                        className="bg-blue-800 text-white px-6 py-2.5 rounded-lg hover:bg-blue-700 transition-colors font-medium hover:cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="bg-blue-800 text-white px-6 py-2.5 rounded-lg hover:bg-blue-700 hover:cursor-pointer transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         + Add Product
                     </button>
@@ -91,6 +91,7 @@ function Header() {
             onClose={() => setIsModalOpen(false)}
             onSubmit={handleAddProduct}
             loading={loading}
+            editingProduct={null}
           />
         </>
     );

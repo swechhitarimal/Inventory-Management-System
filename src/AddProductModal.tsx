@@ -29,7 +29,13 @@ interface AddProductModalProps {
     editingProduct?: Product | null;
 }
 
-function AddProductModal({ isOpen, onClose, onSubmit, loading = false, editingProduct = null }: AddProductModalProps) {
+function AddProductModal({ 
+    isOpen, 
+    onClose, 
+    onSubmit, 
+    loading = false, 
+    editingProduct = null 
+}: AddProductModalProps) {
     
     const [formData, setFormData] = useState<ProductFormData>({
         productName: '',
@@ -43,28 +49,31 @@ function AddProductModal({ isOpen, onClose, onSubmit, loading = false, editingPr
     const [categories, setCategories] = useState<string[]>([]);
     const [loadingCategories, setLoadingCategories] = useState(false);
 
-    // Fetch categories when modal opens
     useEffect(() => {
         if (isOpen) {
             fetchCategories();
+            
+            if (editingProduct) {
+                setFormData({
+                    productName: editingProduct.name,
+                    category: editingProduct.category,
+                    price: editingProduct.price,
+                    quantity: editingProduct.quantity,
+                    sku: editingProduct.product_code,
+                    description: ''
+                });
+            } else {
+                setFormData({
+                    productName: '',
+                    category: '',
+                    price: '',
+                    quantity: '',
+                    sku: '',
+                    description: ''
+                });
+            }
         }
-    }, [isOpen]);
-
-    // Populate form with editing product data
-    useEffect(() => {
-        if (editingProduct) {
-            setFormData({
-                productName: editingProduct.name,
-                category: editingProduct.category,
-                price: editingProduct.price,
-                quantity: editingProduct.quantity,
-                sku: editingProduct.product_code,
-                description: ''
-            });
-        } else {
-            resetForm();
-        }
-    }, [editingProduct]);
+    }, [isOpen, editingProduct]);
 
     const fetchCategories = async () => {
         try {
@@ -86,35 +95,16 @@ function AddProductModal({ isOpen, onClose, onSubmit, loading = false, editingPr
     };
 
     const handleOk = () => {
-        // Validate required fields
         if (!formData.productName || !formData.category || !formData.price || !formData.quantity || !formData.sku) {
             message.warning('Please fill in all required fields');
             return;
         }
         
-        console.log('Form Data:', formData);  
         onSubmit(formData);                   
-        
-        // Only reset if not editing (editing will be reset by parent)
-        if (!editingProduct) {
-            resetForm();
-        }
     };
 
     const handleCancel = () => {       
-        resetForm();   
         onClose();   
-    };
-
-    const resetForm = () => {
-        setFormData({
-            productName: '',
-            category: '',
-            price: '',
-            quantity: '',
-            sku: '',
-            description: ''
-        });
     };
 
     const handleChange = (field: keyof ProductFormData, value: any) => {

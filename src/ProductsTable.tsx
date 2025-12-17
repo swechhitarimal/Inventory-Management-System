@@ -24,10 +24,6 @@ function ProductsTable({ searchTerm, categoryFilter }: ProductsTableProps) {
     const [editingProduct, setEditingProduct] = useState<Product | null>(null);
     const [submitting, setSubmitting] = useState(false);    
 
-    useEffect(() => {
-        fetchProducts();
-    }, []);
-
     const fetchProducts = async () => {
         try {
             setLoading(true);
@@ -39,8 +35,6 @@ function ProductsTable({ searchTerm, categoryFilter }: ProductsTableProps) {
             
             const products = await response.json();
             setData(products);
-            
-            // Dispatch event to notify other components
             window.dispatchEvent(new Event('productsUpdated'));
         } catch (error) {
             console.error('Error fetching products:', error);
@@ -49,6 +43,20 @@ function ProductsTable({ searchTerm, categoryFilter }: ProductsTableProps) {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        fetchProducts();
+        
+        const handleRefresh = () => {
+            fetchProducts();
+        };
+        
+        window.addEventListener('productAdded', handleRefresh);
+        
+        return () => {
+            window.removeEventListener('productAdded', handleRefresh);
+        };
+    }, []);
 
     const handleDelete = async (record: Product) => {
         try {
@@ -73,48 +81,8 @@ function ProductsTable({ searchTerm, categoryFilter }: ProductsTableProps) {
         setIsModalOpen(true);
     };
 
-    const handleAddProduct = async (formData: any) => {
-        try {
-            setSubmitting(true);
-
-            const productData = {
-                product_code: formData.sku,
-                name: formData.productName,
-                price: parseFloat(formData.price.toString()),
-                category: formData.category,
-                quantity: parseInt(formData.quantity.toString())
-            };
-
-            const response = await fetch('http://localhost:5000/products', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(productData)
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to add product');
-            }
-
-            message.success('Product added successfully!');
-            setIsModalOpen(false);
-            fetchProducts(); // Refresh the table
-        } catch (error: any) {
-            console.error('Error adding product:', error);
-            message.error(error.message || 'Failed to add product');
-        } finally {
-            setSubmitting(false);
-        }
-    };
-
     const handleUpdateProduct = async (formData: any) => {
-        if (!editingProduct) {
-            // This is an ADD operation
-            await handleAddProduct(formData);
-            return;
-        }
+        if (!editingProduct) return;
 
         try {
             setSubmitting(true);
@@ -124,7 +92,7 @@ function ProductsTable({ searchTerm, categoryFilter }: ProductsTableProps) {
                 name: formData.productName,
                 price: parseFloat(formData.price.toString()),
                 category: formData.category,
-                quantity: parseInt(formData.quantity.toString())
+                quantity: parseInt(formData.quantity.toString(), 10)
             };
 
             const response = await fetch(`http://localhost:5000/products/${editingProduct.id}`, {
@@ -143,7 +111,7 @@ function ProductsTable({ searchTerm, categoryFilter }: ProductsTableProps) {
             message.success('Product updated successfully!');
             setIsModalOpen(false);
             setEditingProduct(null);
-            fetchProducts(); // Refresh the table
+            fetchProducts();
         } catch (error: any) {
             console.error('Error updating product:', error);
             message.error(error.message || 'Failed to update product');
@@ -157,7 +125,6 @@ function ProductsTable({ searchTerm, categoryFilter }: ProductsTableProps) {
         setEditingProduct(null);
     };
 
-    // Filter data based on search term and category
     const filteredData = data.filter(product => {
         const matchesSearch = searchTerm === '' || 
             product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
